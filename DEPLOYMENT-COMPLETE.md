@@ -7,8 +7,9 @@
 - Todos os arquivos publicados
 - Links atualizados corretamente
 
-**App Store CasaOS:** ✅ Pronto para uso
-- URL: https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore
+**App Store CasaOS:** ✅ Repositório dedicado criado
+- Repositório: https://github.com/WillianQuintino/casaos-tailscale-appstore
+- URL: https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main
 - Manifesto validado
 - Metadados configurados
 
@@ -46,7 +47,7 @@ docker push ghcr.io/willianquintino/tailscale-funnel-manager:latest
 3. **Clicar em "Add Source" (canto superior direito)**
 4. **Colar a URL:**
    ```
-   https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore
+   https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main
    ```
 5. **Instalar o Tailscale Funnel Manager**
 
@@ -54,7 +55,7 @@ docker push ghcr.io/willianquintino/tailscale-funnel-manager:latest
 
 ```bash
 # Adicionar app store
-casaos-cli app-management register app-store https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore
+casaos-cli app-management register app-store https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main
 
 # Listar apps disponíveis
 casaos-cli app-management list
@@ -65,7 +66,7 @@ casaos-cli app-management list
 | Recurso | URL |
 |---------|-----|
 | **Repositório** | https://github.com/WillianQuintino/tailscale-funnel-manager |
-| **App Store** | https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore |
+| **App Store** | https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main |
 | **Imagem Docker** | ghcr.io/willianquintino/tailscale-funnel-manager:latest |
 | **Install Script** | https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/install.sh |
 
@@ -139,5 +140,5 @@ Seu Tailscale Funnel Manager está pronto para ser usado pela comunidade CasaOS!
 
 **URL do App Store para CasaOS:**
 ```
-https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore
+https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main
 ```

@@ -42,14 +42,26 @@ Uma interface web completa para gerenciar Tailscale Funnels em ambientes CasaOS,
 
 ## 🚀 Instalação Rápida
 
-### Método 1: Script Automático
+### Método 1: App Store CasaOS (Recomendado)
+
+```
+URL do App Store: https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main
+```
+
+1. **Abrir CasaOS Dashboard**
+2. **Ir para App Store**
+3. **Clicar em "Add Source"**
+4. **Colar a URL acima**
+5. **Instalar "Tailscale Funnel Manager"**
+
+### Método 2: Script Automático
 
 ```bash
 # Baixar e executar o instalador
 curl -fsSL https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/install.sh | sudo bash
 ```
 
-### Método 2: Instalação Manual
+### Método 3: Instalação Manual
 
 ```bash
 # 1. Clonar o repositório
@@ -60,7 +72,7 @@ cd tailscale-funnel-manager
 sudo ./install.sh
 ```
 
-### Método 3: Docker Compose
+### Método 4: Docker Compose
 
 ```bash
 # 1. Baixar arquivos
