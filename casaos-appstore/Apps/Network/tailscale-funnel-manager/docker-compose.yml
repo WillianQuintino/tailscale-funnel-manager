@@ -1,0 +1,89 @@
+name: tailscale-funnel-manager
+services:
+  tailscale-funnel-manager:
+    image: ghcr.io/tailscale-funnel-manager/tailscale-funnel-manager:latest
+    container_name: tailscale-funnel-manager
+    restart: unless-stopped
+    ports:
+      - target: 8080
+        published: "8080"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/$AppID/data
+        target: /app/data
+      - type: bind
+        source: /DATA/AppData/$AppID/tailscale
+        target: /var/lib/tailscale
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: false
+    privileged: true
+    network_mode: bridge
+    environment:
+      - TZ=$TZ
+      - PYTHONUNBUFFERED=1
+    labels:
+      icon: https://tailscale.com/favicon.ico
+      desc_en: Web interface to manage Tailscale Funnels for CasaOS containers
+      desc_pt: Interface web para gerenciar Tailscale Funnels para containers CasaOS
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+  main: tailscale-funnel-manager
+  author: CasaOS Community
+  category: Network
+  description:
+    en: A modern web interface to create and manage Tailscale Funnels for your CasaOS containers. Automatically discovers running containers and their ports, allowing you to expose services to the internet securely through Tailscale's encrypted network. Features include one-click funnel creation, real-time monitoring, and comprehensive container discovery.
+    pt: Uma interface web moderna para criar e gerenciar Tailscale Funnels para seus containers CasaOS. Descobre automaticamente containers em execução e suas portas, permitindo expor serviços para a internet de forma segura através da rede criptografada do Tailscale. Inclui criação de funnel com um clique, monitoramento em tempo real e descoberta abrangente de containers.
+  developer: Community Developer
+  icon: https://tailscale.com/favicon.ico
+  screenshot_link:
+    - https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/dashboard.png
+    - https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/containers.png
+    - https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/funnels.png
+  tagline:
+    en: Secure web exposure for your CasaOS containers via Tailscale Funnel
+    pt: Exposição web segura para seus containers CasaOS via Tailscale Funnel
+  title:
+    en: Tailscale Funnel Manager
+    pt: Gerenciador Tailscale Funnel
+  tips:
+    before_install:
+      en: |
+        1. You need a Tailscale account (free at https://tailscale.com)
+        2. Generate an auth key at https://login.tailscale.com/admin/settings/keys
+        3. Ensure your CasaOS server can access the internet
+        4. Only ports 443, 8443, and 10000 are supported for Tailscale Funnels
+      pt: |
+        1. Você precisa de uma conta Tailscale (gratuita em https://tailscale.com)
+        2. Gere uma chave de autenticação em https://login.tailscale.com/admin/settings/keys
+        3. Certifique-se de que seu servidor CasaOS pode acessar a internet
+        4. Apenas as portas 443, 8443 e 10000 são suportadas para Tailscale Funnels
+    after_install:
+      en: |
+        1. Access the web interface at http://your-server:8080
+        2. Enter your Tailscale auth key in the authentication section
+        3. Wait for Tailscale to connect and authenticate
+        4. Your CasaOS containers will be automatically discovered
+        5. Click on port buttons to create funnels with one click
+        6. Access your services from anywhere using the generated HTTPS URLs
+      pt: |
+        1. Acesse a interface web em http://seu-servidor:8080
+        2. Insira sua chave de autenticação Tailscale na seção de autenticação
+        3. Aguarde o Tailscale conectar e autenticar
+        4. Seus containers CasaOS serão descobertos automaticamente
+        5. Clique nos botões de porta para criar funnels com um clique
+        6. Acesse seus serviços de qualquer lugar usando as URLs HTTPS geradas
+  thumbnail: https://tailscale.com/favicon.ico
+  index: /
+  port_map: "8080"

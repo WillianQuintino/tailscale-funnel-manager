@@ -1,0 +1,21 @@
+[
+  {
+    "name": "tailscale-funnel-manager",
+    "title": {
+      "en": "Tailscale Funnel Manager",
+      "pt": "Gerenciador Tailscale Funnel"
+    },
+    "description": {
+      "en": "Secure web exposure for your CasaOS containers via Tailscale Funnel",
+      "pt": "Exposição web segura para seus containers CasaOS via Tailscale Funnel"
+    },
+    "icon": "https://tailscale.com/favicon.ico",
+    "category": "Network",
+    "featured": true,
+    "screenshots": [
+      "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/dashboard.png",
+      "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/containers.png",
+      "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/funnels.png"
+    ]
+  }
+]
