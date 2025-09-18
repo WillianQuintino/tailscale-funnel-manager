@@ -5,12 +5,12 @@
     "pt": "Aplicações mantidas pela comunidade para redes seguras e acesso remoto"
   },
   "version": "1.0.0",
-  "url": "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/casaos-appstore",
-  "website": "https://github.com/seu-usuario/tailscale-funnel-manager",
+  "url": "https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore",
+  "website": "https://github.com/WillianQuintino/tailscale-funnel-manager",
   "author": "CasaOS Community",
   "contact": "community@casaos.io",
   "license": "MIT",
-  "last_updated": "2024-01-15",
+  "last_updated": "2024-09-18",
   "categories": [
     {
       "id": "network",
@@ -33,7 +33,7 @@
   "changelog": [
     {
       "version": "1.0.0",
-      "date": "2024-01-15",
+      "date": "2024-09-18",
       "changes": {
         "en": [
           "Initial release",

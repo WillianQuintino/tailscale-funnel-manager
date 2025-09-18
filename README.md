@@ -46,14 +46,14 @@ Uma interface web completa para gerenciar Tailscale Funnels em ambientes CasaOS,
 
 ```bash
 # Baixar e executar o instalador
-curl -fsSL https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/install.sh | sudo bash
 ```
 
 ### Método 2: Instalação Manual
 
 ```bash
 # 1. Clonar o repositório
-git clone https://github.com/seu-usuario/tailscale-funnel-manager.git
+git clone https://github.com/WillianQuintino/tailscale-funnel-manager.git
 cd tailscale-funnel-manager
 
 # 2. Executar instalador
@@ -64,7 +64,7 @@ sudo ./install.sh
 
 ```bash
 # 1. Baixar arquivos
-git clone https://github.com/seu-usuario/tailscale-funnel-manager.git
+git clone https://github.com/WillianQuintino/tailscale-funnel-manager.git
 cd tailscale-funnel-manager
 
 # 2. Iniciar com Docker Compose
@@ -370,7 +370,7 @@ tailscale-funnel-manager/
 
 ```bash
 # 1. Clonar repositório
-git clone https://github.com/seu-usuario/tailscale-funnel-manager.git
+git clone https://github.com/WillianQuintino/tailscale-funnel-manager.git
 cd tailscale-funnel-manager
 
 # 2. Ambiente Python
@@ -401,9 +401,9 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ### Canais de Suporte
 
-- **Issues**: [GitHub Issues](https://github.com/seu-usuario/tailscale-funnel-manager/issues)
-- **Discussões**: [GitHub Discussions](https://github.com/seu-usuario/tailscale-funnel-manager/discussions)
-- **Wiki**: [Documentação Completa](https://github.com/seu-usuario/tailscale-funnel-manager/wiki)
+- **Issues**: [GitHub Issues](https://github.com/WillianQuintino/tailscale-funnel-manager/issues)
+- **Discussões**: [GitHub Discussions](https://github.com/WillianQuintino/tailscale-funnel-manager/discussions)
+- **Wiki**: [Documentação Completa](https://github.com/WillianQuintino/tailscale-funnel-manager/wiki)
 
 ### FAQ
 

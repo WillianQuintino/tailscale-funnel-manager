@@ -13,9 +13,9 @@
     "category": "Network",
     "featured": true,
     "screenshots": [
-      "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/dashboard.png",
-      "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/containers.png",
-      "https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/funnels.png"
+      "https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/screenshots/dashboard.png",
+      "https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/screenshots/containers.png",
+      "https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/screenshots/funnels.png"
     ]
   }
 ]

@@ -18,7 +18,7 @@ CONTAINER_NAME="tailscale-funnel-manager"
 IMAGE_NAME="tailscale-funnel-manager"
 DATA_DIR="/opt/casaos/tailscale-funnel"
 WEB_PORT="8080"
-REPO_URL="https://github.com/seu-usuario/tailscale-funnel-manager"
+REPO_URL="https://github.com/WillianQuintino/tailscale-funnel-manager"
 
 # Funções auxiliares
 log_info() {

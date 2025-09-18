@@ -1,7 +1,7 @@
 name: tailscale-funnel-manager
 services:
   tailscale-funnel-manager:
-    image: ghcr.io/tailscale-funnel-manager/tailscale-funnel-manager:latest
+    image: ghcr.io/willianquintino/tailscale-funnel-manager:latest
     container_name: tailscale-funnel-manager
     restart: unless-stopped
     ports:
@@ -48,9 +48,9 @@ x-casaos:
   developer: Community Developer
   icon: https://tailscale.com/favicon.ico
   screenshot_link:
-    - https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/dashboard.png
-    - https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/containers.png
-    - https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/screenshots/funnels.png
+    - https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/screenshots/dashboard.png
+    - https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/screenshots/containers.png
+    - https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/screenshots/funnels.png
   tagline:
     en: Secure web exposure for your CasaOS containers via Tailscale Funnel
     pt: Exposição web segura para seus containers CasaOS via Tailscale Funnel

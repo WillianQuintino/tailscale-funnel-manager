@@ -11,7 +11,7 @@ Este é um app store personalizado para CasaOS que fornece aplicações relacion
 3. **Clique em "Adicionar Fonte" (Add Source)**
 4. **Cole a URL do App Store:**
    ```
-   https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/casaos-appstore
+   https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore
    ```
 5. **Clique em "Adicionar"**
 
@@ -19,7 +19,7 @@ Este é um app store personalizado para CasaOS que fornece aplicações relacion
 
 ```bash
 # Usando o CLI do CasaOS
-casaos-cli app-management register app-store https://raw.githubusercontent.com/seu-usuario/tailscale-funnel-manager/main/casaos-appstore
+casaos-cli app-management register app-store https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/casaos-appstore
 ```
 
 ## 📱 Aplicações Disponíveis
