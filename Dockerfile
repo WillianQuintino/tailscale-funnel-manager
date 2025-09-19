@@ -1,49 +1,52 @@
-FROM ubuntu:22.04
+# Use Node.js Alpine image for smaller size
+FROM node:18-alpine
 
-# Instalar dependências
-RUN apt-get update && apt-get install -y \
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
     curl \
-    wget \
+    git \
+    docker-cli \
+    bash \
     ca-certificates \
-    gnupg \
-    lsb-release \
-    python3 \
-    python3-pip \
-    python3-venv \
-    nodejs \
-    npm \
-    supervisor \
-    docker.io \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/cache/apk/*
 
-# Instalar Tailscale
+# Install Tailscale
 RUN curl -fsSL https://tailscale.com/install.sh | sh
 
-# Criar usuário não-root
-RUN useradd -m -s /bin/bash tailscale-manager && \
-    usermod -aG docker tailscale-manager
+# Set environment variables
+ENV NODE_ENV=production
+ENV TS_STATE_DIR=/var/lib/tailscale
+ENV AUTH_ENABLED=false
+ENV AUTH_TYPE=tailscale
 
-# Criar diretórios de trabalho
-RUN mkdir -p /app /app/web /app/data /var/log/supervisor
+# Copy package files
+COPY package*.json ./
 
-# Instalar dependências Python
-COPY requirements.txt /app/
-RUN python3 -m pip install --no-cache-dir -r /app/requirements.txt
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# Copiar aplicação
-COPY web/ /app/web/
-COPY scripts/ /app/scripts/
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy source code
+COPY . .
 
-# Configurar permissões
-RUN chown -R tailscale-manager:tailscale-manager /app
-RUN chmod +x /app/scripts/*.sh
+# Build the application
+RUN npm run build
 
-# Criar volume para dados persistentes
-VOLUME ["/app/data", "/var/lib/tailscale"]
+# Create necessary directories
+RUN mkdir -p /var/lib/tailscale /app/data
 
-# Expor porta da interface web
-EXPOSE 8080
+# Copy and set up start script
+COPY scripts/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-# Comando de inicialização
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/api/tailscale/status || exit 1
+
+# Start the application with our custom script
+CMD ["/usr/local/bin/start.sh"]

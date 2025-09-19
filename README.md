@@ -1,455 +1,209 @@
-# Tailscale Funnel Manager para CasaOS
+# 🚀 Tailscale Funnel Manager v2.0
 
-Uma interface web completa para gerenciar Tailscale Funnels em ambientes CasaOS, permitindo expor seus containers e serviços para a internet de forma segura através da rede Tailscale.
+> **Modern Next.js interface for managing Tailscale Funnels with glassmorphism UI and seamless authentication**
 
-![Version](https://img.shields.io/badge/version-1.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![CasaOS](https://img.shields.io/badge/CasaOS-Compatible-orange)
+A beautiful, modern web interface built with **Next.js 15** for creating and managing **Tailscale Funnels** in CasaOS environments. Features a stunning glassmorphism design, automatic container discovery, and browser-based authentication.
 
-## 🌟 Características
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-supported-blue.svg)
+![CasaOS](https://img.shields.io/badge/CasaOS-compatible-green.svg)
 
-### ✨ Interface Web Intuitiva
-- Dashboard moderno e responsivo
-- Monitoramento em tempo real
-- Suporte a tema escuro/claro
-- Notificações visuais
+## ✨ What's New in v2.0
 
-### 🐳 Descoberta Automática de Containers
-- Detecta automaticamente containers CasaOS
-- Identifica portas expostas
-- Reconhece tipos de aplicação
-- Suporte a projetos docker-compose
+- 🎨 **Stunning Glassmorphism UI** - Modern, responsive design with beautiful gradients
+- 🔗 **Browser Authentication** - No more complex Auth Key setup, just click and authenticate
+- 🐳 **Smart Container Discovery** - Automatically detects Docker containers and CasaOS apps
+- 📊 **Real-time Monitoring** - Live status updates via WebSocket connections
+- 🌐 **Multi-language Support** - English and Portuguese interfaces
+- 📱 **Mobile Responsive** - Perfect experience on all devices
+- ⚡ **Lightning Fast** - Built with Next.js 15 and optimized for performance
 
-### 🔒 Segurança Integrada
-- Autenticação Tailscale nativa
-- Criptografia end-to-end
-- Filtragem de informações sensíveis
-- Isolamento de rede
+## 🎯 Features
 
-### 🚀 Gerenciamento Completo de Funnels
-- Criação com um clique
-- Remoção segura
-- Status em tempo real
-- URLs prontas para compartilhar
+### 🔧 **Easy Setup**
+- **Two authentication methods:**
+  - 🔑 Traditional Auth Key input
+  - 🌐 Browser-based login URL generation
+- ⚡ One-click container discovery
+- 🔄 Automatic service detection
 
-## 📋 Pré-requisitos
+### 🎨 **Modern Interface**
+- ✨ Glassmorphism design with backdrop blur effects
+- 🌈 Gradient backgrounds and smooth animations
+- 📱 Fully responsive mobile design
+- 🎭 Dark theme with purple/blue color scheme
 
-- **CasaOS** instalado e funcionando
-- **Docker** 20.10 ou superior
-- **Git** para instalação
-- **Conta Tailscale** ativa
-- **Acesso root** ao servidor
+### 🐳 **Container Management**
+- 🔍 Auto-discovery of Docker containers
+- 🏠 CasaOS apps integration
+- 📊 Real-time status monitoring
+- 🎯 One-click funnel creation
 
-## 🚀 Instalação Rápida
+### 🔒 **Security & Authentication**
+- 🛡️ Multiple auth methods (Tailscale/CasaOS/Custom)
+- 🔐 Secure API endpoints
+- 🌐 Tailscale network validation
+- 📝 Session management
 
-### Método 1: App Store CasaOS (Recomendado)
+## 🚀 Quick Start
 
-```
-URL do App Store: https://raw.githubusercontent.com/WillianQuintino/casaos-tailscale-appstore/main
-```
+### 📦 Install via CasaOS App Store
 
-1. **Abrir CasaOS Dashboard**
-2. **Ir para App Store**
-3. **Clicar em "Add Source"**
-4. **Colar a URL acima**
-5. **Instalar "Tailscale Funnel Manager"**
+1. Open your **CasaOS App Store**
+2. Search for "**Tailscale Funnel Manager**"
+3. Click **Install**
+4. Access via `http://your-server:3000`
 
-### Método 2: Script Automático
-
-```bash
-# Baixar e executar o instalador
-curl -fsSL https://raw.githubusercontent.com/WillianQuintino/tailscale-funnel-manager/main/install.sh | sudo bash
-```
-
-### Método 3: Instalação Manual
+### 🐳 Docker Deployment
 
 ```bash
-# 1. Clonar o repositório
-git clone https://github.com/WillianQuintino/tailscale-funnel-manager.git
-cd tailscale-funnel-manager
-
-# 2. Executar instalador
-sudo ./install.sh
-```
-
-### Método 4: Docker Compose
-
-```bash
-# 1. Baixar arquivos
-git clone https://github.com/WillianQuintino/tailscale-funnel-manager.git
-cd tailscale-funnel-manager
-
-# 2. Iniciar com Docker Compose
-docker-compose up -d
-```
-
-## 🔧 Configuração
-
-### 1. Acesso Inicial
-
-Após a instalação, acesse a interface web:
-
-```
-http://seu-servidor:8080
-```
-
-### 2. Autenticação Tailscale
-
-1. **Obter Token de Autenticação:**
-   - Acesse: https://login.tailscale.com/admin/settings/keys
-   - Clique em "Generate auth key"
-   - Copie o token gerado
-
-2. **Configurar no Manager:**
-   - Cole o token na interface web
-   - Clique em "Autenticar"
-   - Aguarde a confirmação
-
-### 3. Configuração Avançada
-
-#### Portas Customizadas
-
-```bash
-# Alterar porta da interface web
 docker run -d \
   --name tailscale-funnel-manager \
-  -p 9090:8080 \
-  # ... outras opções
+  --restart unless-stopped \
+  -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/tailscale:/var/lib/tailscale \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -v /dev/net/tun:/dev/net/tun \
+  --cap-add NET_ADMIN \
+  --cap-add NET_RAW \
+  --privileged \
+  --network host \
+  ghcr.io/willianquintino/tailscale-funnel-manager:latest
 ```
 
-#### Volumes Personalizados
+### 🔧 Development Setup
 
 ```bash
-# Configurar diretórios customizados
-docker run -d \
-  -v /meu/diretorio/dados:/app/data \
-  -v /meu/diretorio/tailscale:/var/lib/tailscale \
-  # ... outras opções
-```
-
-## 📖 Como Usar
-
-### 1. Dashboard Principal
-
-O dashboard fornece:
-- **Status Tailscale**: Conectividade e informações da rede
-- **Containers Detectados**: Lista de containers CasaOS com portas
-- **Funnels Ativos**: Túneis criados e suas URLs
-- **Ferramentas**: Botões de ação rápida
-
-### 2. Criar um Funnel
-
-#### Método Automático (Recomendado)
-
-1. **Visualizar Containers:**
-   - Os containers são detectados automaticamente
-   - Portas expostas são mostradas como badges
-
-2. **Criar Funnel:**
-   - Clique no botão "Porta XXXX" do container desejado
-   - O formulário será preenchido automaticamente
-   - Clique em "Criar"
-
-#### Método Manual
-
-1. **Preencher Formulário:**
-   - **Porta Externa**: Escolha entre 443, 8443 ou 10000
-   - **Porta Local**: Porta do seu serviço
-   - **Nome do Serviço**: Nome descritivo
-
-2. **Confirmar Criação:**
-   - Clique em "Criar"
-   - Aguarde confirmação
-
-### 3. Gerenciar Funnels
-
-- **Visualizar**: URLs são exibidas na seção "Funnels Ativos"
-- **Copiar URL**: Clique no ícone de cópia
-- **Remover**: Clique no botão "Remover"
-
-### 4. Exemplos Práticos
-
-#### Expor Jellyfin (Media Server)
-
-```
-Container: jellyfin
-Porta Local: 8096
-Porta Externa: 443
-URL Resultante: https://meu-servidor.tailnet.ts.net
-```
-
-#### Expor Home Assistant
-
-```
-Container: homeassistant
-Porta Local: 8123
-Porta Externa: 8443
-URL Resultante: https://meu-servidor.tailnet.ts.net:8443
-```
-
-#### Expor Nextcloud
-
-```
-Container: nextcloud
-Porta Local: 80
-Porta Externa: 10000
-URL Resultante: https://meu-servidor.tailnet.ts.net:10000
-```
-
-## 🔍 Monitoramento e Logs
-
-### Verificar Status
-
-```bash
-# Status do container
-docker ps | grep tailscale-funnel-manager
-
-# Logs em tempo real
-docker logs -f tailscale-funnel-manager
-
-# Status do Tailscale
-docker exec tailscale-funnel-manager tailscale status
-```
-
-### Backup e Restore
-
-```bash
-# Criar backup
-sudo /opt/casaos/tailscale-funnel/scripts/backup_restore.sh backup
-
-# Listar backups
-sudo /opt/casaos/tailscale-funnel/scripts/backup_restore.sh list
-
-# Restaurar backup
-sudo /opt/casaos/tailscale-funnel/scripts/backup_restore.sh restore /caminho/para/backup.tar.gz
-```
-
-## 🛠️ Solução de Problemas
-
-### Problemas Comuns
-
-#### 1. Tailscale não conecta
-
-**Sintomas:**
-- Status "Desconectado"
-- Erro de autenticação
-
-**Soluções:**
-```bash
-# Verificar logs
-docker logs tailscale-funnel-manager
-
-# Restart do container
-docker restart tailscale-funnel-manager
-
-# Verificar token
-# Gere um novo token em: https://login.tailscale.com/admin/settings/keys
-```
-
-#### 2. Containers não aparecem
-
-**Sintomas:**
-- Lista de containers vazia
-- "Nenhum container encontrado"
-
-**Soluções:**
-```bash
-# Verificar socket do Docker
-ls -la /var/run/docker.sock
-
-# Verificar permissões
-docker exec tailscale-funnel-manager ls -la /var/run/docker.sock
-
-# Restart do monitor
-docker exec tailscale-funnel-manager supervisorctl restart container-monitor
-```
-
-#### 3. Funnel não funciona
-
-**Sintomas:**
-- URL inacessível
-- Erro de conexão
-
-**Soluções:**
-```bash
-# Verificar status do funnel
-docker exec tailscale-funnel-manager tailscale funnel status
-
-# Verificar porta disponível
-netstat -tlnp | grep :PORTA
-
-# Reiniciar Tailscale
-docker exec tailscale-funnel-manager supervisorctl restart tailscale
-```
-
-#### 4. Interface web inacessível
-
-**Sintomas:**
-- Página não carrega
-- Erro 502/503
-
-**Soluções:**
-```bash
-# Verificar porta
-docker port tailscale-funnel-manager
-
-# Verificar aplicação web
-docker exec tailscale-funnel-manager supervisorctl status web-app
-
-# Restart da aplicação
-docker exec tailscale-funnel-manager supervisorctl restart web-app
-```
-
-### Logs Detalhados
-
-```bash
-# Logs do supervisor
-docker exec tailscale-funnel-manager cat /var/log/supervisor/supervisord.log
-
-# Logs do Tailscale
-docker exec tailscale-funnel-manager cat /var/log/supervisor/tailscale.log
-
-# Logs da aplicação web
-docker exec tailscale-funnel-manager cat /var/log/supervisor/webapp.log
-
-# Logs do monitor
-docker exec tailscale-funnel-manager cat /var/log/supervisor/monitor.log
-```
-
-## 🔒 Segurança
-
-### Melhores Práticas
-
-1. **Token de Autenticação:**
-   - Use tokens com escopo limitado
-   - Regenere tokens periodicamente
-   - Não compartilhe tokens
-
-2. **Acesso à Interface:**
-   - Configure firewall para porta 8080
-   - Use HTTPS proxy se necessário
-   - Monitore logs de acesso
-
-3. **Containers Expostos:**
-   - Revise regularmente funnels ativos
-   - Remova funnels não utilizados
-   - Configure autenticação nos serviços
-
-### Auditoria
-
-```bash
-# Verificar funnels ativos
-docker exec tailscale-funnel-manager tailscale funnel status
-
-# Verificar dispositivos conectados
-docker exec tailscale-funnel-manager tailscale status
-
-# Histórico de configurações
-cat /opt/casaos/tailscale-funnel/data/config.json
-```
-
-## 📁 Estrutura do Projeto
-
-```
-tailscale-funnel-manager/
-├── Dockerfile                 # Container principal
-├── docker-compose.yml        # Orquestração
-├── requirements.txt          # Dependências Python
-├── supervisord.conf          # Gerenciamento de processos
-├── install.sh                # Script de instalação
-├── web/                      # Interface web
-│   ├── app.py               # Aplicação Flask
-│   ├── templates/           # Templates HTML
-│   └── static/              # CSS/JS
-├── scripts/                  # Scripts auxiliares
-│   ├── container_monitor.py # Monitor de containers
-│   └── backup_restore.sh    # Backup/Restore
-└── README.md                # Esta documentação
-```
-
-## 🤝 Contribuição
-
-### Como Contribuir
-
-1. **Fork** o projeto
-2. **Clone** seu fork
-3. **Crie** uma branch para sua feature
-4. **Implemente** suas mudanças
-5. **Teste** completamente
-6. **Envie** um Pull Request
-
-### Desenvolvimento Local
-
-```bash
-# 1. Clonar repositório
+# Clone the repository
 git clone https://github.com/WillianQuintino/tailscale-funnel-manager.git
 cd tailscale-funnel-manager
 
-# 2. Ambiente Python
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+# Install dependencies
+npm install
 
-# 3. Executar localmente
-cd web
-python app.py
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+npm start
 ```
 
-### Testes
+## 📖 Documentation
 
-```bash
-# Construir imagem de teste
-docker build -t tailscale-funnel-manager:test .
+- 📋 **[Docker Guide](DOCKER.md)** - Complete Docker deployment instructions
+- 🔐 **[Tailscale Login](TAILSCALE_LOGIN.md)** - Authentication setup guide
+- 🏗️ **[Development](CONTRIBUTING.md)** - Contributing and development guide
 
-# Executar testes
-docker run --rm tailscale-funnel-manager:test pytest
+## 🌟 Usage
+
+### 1. **First Time Setup**
+
+When you first access the interface:
+
+1. 🌐 **Access**: `http://your-server:3000`
+2. 🔧 **Choose setup method:**
+   - 🔑 **Auth Key**: Enter your Tailscale auth key
+   - 🌐 **Browser Login**: Click "Get Login URL" for easy setup
+
+### 2. **Authentication Options**
+
+#### 🔑 **Auth Key Method**
+- Generate at [login.tailscale.com](https://login.tailscale.com/admin/settings/authkeys)
+- Mark as "Reusable" and "Ephemeral"
+- Paste into the interface
+
+#### 🌐 **Browser Login Method**
+- Click "Get Login URL"
+- Copy or open the generated URL
+- Complete authentication in browser
+- Return and click "Verify Status"
+
+### 3. **Managing Containers**
+
+- 🔍 **Auto-discovery**: Containers appear automatically
+- 🎯 **Create Funnels**: Click the port buttons for one-click creation
+- 📊 **Monitor Status**: Real-time updates show connection status
+- 🌍 **Access Services**: Use generated HTTPS URLs from anywhere
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 4 with custom glassmorphism
+- **Icons**: Lucide React
+- **State Management**: TanStack Query (React Query)
+- **Notifications**: Sonner
+- **Forms**: React Hook Form + Zod validation
+- **Deployment**: Docker with multi-stage builds
+
+## 🏗️ Architecture
+
+```
+├── app/
+│   ├── api/                 # API routes
+│   │   ├── status/          # System status
+│   │   ├── setup/           # Authentication setup
+│   │   ├── funnels/         # Funnel management
+│   │   └── tailscale/       # Tailscale integration
+│   ├── components/          # React components
+│   │   ├── Dashboard.tsx    # Main interface
+│   │   ├── ServiceList.tsx  # Container listing
+│   │   └── ConfigurationPanel.tsx
+│   ├── lib/                 # Utilities
+│   │   ├── docker-service.ts   # Docker integration
+│   │   ├── casaos-auth.ts     # Authentication
+│   │   └── tailscale-cli.ts   # Tailscale CLI wrapper
+│   └── types/               # TypeScript definitions
+├── scripts/                 # Deployment scripts
+├── .github/workflows/       # CI/CD automation
+└── docs/                    # Documentation
 ```
 
-## 📄 Licença
+## 🔧 Environment Variables
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NODE_ENV` | Environment | `production` |
+| `TS_STATE_DIR` | Tailscale state directory | `/var/lib/tailscale` |
+| `AUTH_ENABLED` | Enable authentication | `false` |
+| `AUTH_TYPE` | Auth method | `tailscale` |
+| `CASAOS_URL` | CasaOS URL | `http://localhost:80` |
 
-## 🆘 Suporte
+## 🤝 Contributing
 
-### Canais de Suporte
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-- **Issues**: [GitHub Issues](https://github.com/WillianQuintino/tailscale-funnel-manager/issues)
-- **Discussões**: [GitHub Discussions](https://github.com/WillianQuintino/tailscale-funnel-manager/discussions)
-- **Wiki**: [Documentação Completa](https://github.com/WillianQuintino/tailscale-funnel-manager/wiki)
+1. 🍴 Fork the repository
+2. 🔀 Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. 💾 Commit your changes (`git commit -m 'Add amazing feature'`)
+4. 📤 Push to the branch (`git push origin feature/amazing-feature`)
+5. 🔀 Open a Pull Request
 
-### FAQ
+## 📝 License
 
-**P: Posso usar sem CasaOS?**
-R: Sim! O manager funciona com qualquer ambiente Docker.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**P: Quais portas posso usar para Funnels?**
-R: Apenas 443, 8443 e 10000 são suportadas pelo Tailscale Funnel.
+## 🙏 Acknowledgments
 
-**P: É seguro expor meus serviços?**
-R: Sim, o Tailscale Funnel usa criptografia end-to-end e autenticação.
+- **[Tailscale](https://tailscale.com)** - For the amazing zero-config VPN
+- **[CasaOS](https://casaos.io)** - For the beautiful home server OS
+- **[Next.js](https://nextjs.org)** - For the incredible React framework
+- **[Vercel](https://vercel.com)** - For the design inspiration
 
-**P: Posso usar múltiplos Funnels?**
-R: Sim, você pode criar funnels para diferentes portas simultaneamente.
+## 📞 Support
 
-## 🎯 Roadmap
-
-### Versão 1.1
-- [ ] Suporte a SSL/TLS customizado
-- [ ] Templates de configuração
-- [ ] Notificações por webhook
-
-### Versão 1.2
-- [ ] API REST completa
-- [ ] Plugin para CasaOS oficial
-- [ ] Monitoramento de tráfego
-
-### Versão 1.3
-- [ ] Balanceamento de carga
-- [ ] Rate limiting
-- [ ] Integração com outros VPNs
+- 🐛 **Issues**: [GitHub Issues](https://github.com/WillianQuintino/tailscale-funnel-manager/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/WillianQuintino/tailscale-funnel-manager/discussions)
+- 📧 **Email**: [your-email@domain.com](mailto:your-email@domain.com)
 
 ---
 
-**Desenvolvido com ❤️ para a comunidade CasaOS**
-
-Para mais informações sobre Tailscale Funnel, visite: [Tailscale Documentation](https://tailscale.com/kb/1223/funnel)
+<div align="center">
+  <strong>Made with ❤️ for the CasaOS community</strong>
+  <br>
+  <sub>Built by <a href="https://github.com/WillianQuintino">WillianQuintino</a></sub>
+</div>
