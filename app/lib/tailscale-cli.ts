@@ -84,7 +84,7 @@ export class TailscaleCLI {
       };
     }
 
-    // Configurar serve com funnel habilitado (sintaxe v1.88+)
+    // Configurar serve primeiro, depois habilitar funnel
     if (serveMode === 'proxy' && target) {
       // Garantir que o target use localhost ou 127.0.0.1
       let normalizedTarget = target;
@@ -97,20 +97,35 @@ export class TailscaleCLI {
         normalizedTarget = `http://127.0.0.1:${targetPort}`;
       }
 
-      // Nova sintaxe do Tailscale serve + funnel (v1.88+)
-      // tailscale serve --funnel --bg --https 443 /path http://localhost:3000
-      // OU para porta 443 sem especificar: tailscale serve --funnel --bg /path http://localhost:3000
-      let serveCommand = 'tailscale serve --funnel --bg';
+      // Passo 1: Configurar serve em background
+      // tailscale serve --bg --https 443 --set-path /path http://localhost:3000
+      let serveCommand = 'tailscale serve --bg';
 
-      // Porta 443 é default, só especificamos se for diferente
-      if (port !== 443) {
+      // Especificar porta HTTPS
+      if (port === 443) {
+        serveCommand += ' --https 443';
+      } else if (port === 8443 || port === 10000) {
         serveCommand += ` --https ${port}`;
       }
 
-      serveCommand += ` ${path} ${normalizedTarget}`;
+      // Adicionar path e target
+      serveCommand += ` --set-path ${path} ${normalizedTarget}`;
 
-      console.log('Executing funnel command:', serveCommand);
-      return this.executeCommand(serveCommand);
+      console.log('Step 1 - Configuring serve:', serveCommand);
+      const serveResult = await this.executeCommand(serveCommand);
+
+      if (!serveResult.success) {
+        return {
+          success: false,
+          error: `Failed to configure serve: ${serveResult.error}`,
+        };
+      }
+
+      // Passo 2: Habilitar funnel na porta
+      const funnelCommand = `tailscale funnel ${port}`;
+      console.log('Step 2 - Enabling funnel:', funnelCommand);
+
+      return this.executeCommand(funnelCommand);
     }
 
     return {
