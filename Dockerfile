@@ -68,7 +68,7 @@ COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/tsconfig.json ./
 
 # Create necessary directories
-RUN mkdir -p /var/lib/tailscale /app/data
+RUN mkdir -p /var/lib/tailscale /var/run/tailscale /app/data
 
 # Create non-root user (but run as root for Tailscale)
 RUN addgroup -g 1001 -S nodejs && \
@@ -82,9 +82,17 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:3002/api/health || exit 1
 
 # Start Tailscale daemon and Next.js app
-CMD tailscaled -statedir=/var/lib/tailscale -tun=userspace-networking -socket=/var/run/tailscale/tailscaled.sock & \
+CMD set -e && \
+    echo "Starting Tailscale daemon..." && \
+    tailscaled --statedir=/var/lib/tailscale --tun=userspace-networking --socket=/var/run/tailscale/tailscaled.sock & \
+    TAILSCALED_PID=$! && \
+    echo "Waiting for Tailscale daemon to start..." && \
     sleep 5 && \
     if [ ! -z "$TAILSCALE_AUTHKEY" ]; then \
-        tailscale up --authkey=$TAILSCALE_AUTHKEY --accept-routes --hostname=funnel-manager; \
+        echo "Authenticating Tailscale with auth key..." && \
+        tailscale up --authkey=$TAILSCALE_AUTHKEY --accept-routes --hostname=funnel-manager || echo "Tailscale auth failed, continuing anyway..."; \
+    else \
+        echo "No TAILSCALE_AUTHKEY provided, skipping auto-authentication"; \
     fi && \
-    npm start
+    echo "Starting Next.js server on port $PORT..." && \
+    exec npm start
