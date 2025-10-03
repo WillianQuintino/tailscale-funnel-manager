@@ -27,6 +27,7 @@ import { ServiceList } from './ServiceList';
 import { ConfigurationPanel } from './ConfigurationPanel';
 import { ContainerList } from './ContainerList';
 import { LoginScreen } from './LoginScreen';
+import { ServicesPanel } from './ServicesPanel';
 import { TailscaleStatus, FunnelStatus, FunnelService, FunnelConfig } from '@/app/types/tailscale';
 
 async function fetchTailscaleStatus(): Promise<TailscaleStatus> {
@@ -661,6 +662,11 @@ export function Dashboard() {
           </div>
         )}
 
+        {/* Network Services */}
+        {activeTab === 'network' && (
+          <ServicesPanel />
+        )}
+
         {/* Containers */}
         {activeTab === 'containers' && (
           <div className="space-y-4">
@@ -681,7 +687,7 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Services */}
+        {/* Funnels */}
         {activeTab === 'services' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
