@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  tailscale-funnel-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tailscale-funnel-manager
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3002}:3002"
+    environment:
+      # Server Configuration
+      - PORT=3002
+      - NODE_ENV=${NODE_ENV:-production}
+
+      # Tailscale Configuration
+      - TS_STATE_DIR=/var/lib/tailscale
+
+      # Authentication
+      - AUTH_ENABLED=${AUTH_ENABLED:-false}
+      - AUTH_TYPE=${AUTH_TYPE:-tailscale}
+      - CASAOS_URL=${CASAOS_URL:-http://localhost:80}
+
+      # Next.js
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      # Tailscale state persistence
+      - /DATA/AppData/tailscale-funnel-manager/tailscale:/var/lib/tailscale
+      # Application data
+      - /DATA/AppData/tailscale-funnel-manager/data:/app/data
+      # Docker socket (read-only for container discovery)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # TUN device for Tailscale
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - tailscale-network
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/api/tailscale/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  tailscale-network:
+    driver: bridge
