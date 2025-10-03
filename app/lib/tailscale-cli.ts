@@ -84,17 +84,34 @@ export class TailscaleCLI {
       };
     }
 
-    let command = `tailscale funnel`;
-
+    // Passo 1: Configurar o serve (proxy reverso)
     if (serveMode === 'proxy' && target) {
-      command += ` ${protocol}:/${path}=${target}`;
-    } else if (serveMode === 'files' && target) {
-      command += ` ${path}=${target}`;
-    } else {
-      command += ` ${port}`;
+      // Garantir que o target use localhost ou 127.0.0.1
+      let normalizedTarget = target;
+      if (target.includes('://localhost:') || target.includes('://127.0.0.1:')) {
+        normalizedTarget = target;
+      } else {
+        // Extrair porta do target e normalizar para localhost
+        const portMatch = target.match(/:(\d+)/);
+        const targetPort = portMatch ? portMatch[1] : '80';
+        normalizedTarget = `http://127.0.0.1:${targetPort}`;
+      }
+
+      // Configurar serve: tailscale serve https:443 / http://127.0.0.1:3000
+      const serveCommand = `tailscale serve ${protocol}:${port} ${path} ${normalizedTarget}`;
+      const serveResult = await this.executeCommand(serveCommand);
+
+      if (!serveResult.success) {
+        return {
+          success: false,
+          error: `Failed to configure serve: ${serveResult.error}`,
+        };
+      }
     }
 
-    return this.executeCommand(command);
+    // Passo 2: Habilitar funnel
+    const funnelCommand = `tailscale funnel ${port}`;
+    return this.executeCommand(funnelCommand);
   }
 
   static async stopFunnel(port: number): Promise<CommandResult> {
