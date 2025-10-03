@@ -4,6 +4,27 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+// Função helper para executar comando com timeout
+async function execWithTimeout(command: string, timeoutMs: number = 5000): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = exec(command, { timeout: timeoutMs }, (error, stdout, stderr) => {
+      // Mesmo com timeout/erro, podemos ter output útil
+      if (stdout || stderr) {
+        resolve({ stdout, stderr });
+      } else if (error) {
+        reject(error);
+      } else {
+        resolve({ stdout: '', stderr: '' });
+      }
+    });
+
+    // Garantir que o processo seja morto após o timeout
+    setTimeout(() => {
+      child.kill('SIGTERM');
+    }, timeoutMs);
+  });
+}
+
 export async function POST(_request: NextRequest) {
   try {
     // Verificar se Tailscale está instalado
@@ -16,96 +37,60 @@ export async function POST(_request: NextRequest) {
       );
     }
 
-    // Tentar fazer `tailscale up` sem auth key para obter URL de login
+    // Primeiro verificar se já está autenticado
     try {
-      const { stdout, stderr } = await execAsync('tailscale up --accept-routes --accept-dns');
+      const { stdout: statusOutput } = await execAsync('tailscale status --json');
+      const status = JSON.parse(statusOutput);
 
-      // Verificar se há URL de login na saída
-      const output = stdout + stderr;
-      const loginUrlMatch = output.match(/https:\/\/login\.tailscale\.com\/[^\s]+/);
-
-      if (loginUrlMatch) {
+      if (status.BackendState === 'Running') {
         return NextResponse.json({
-          requiresLogin: true,
-          loginUrl: loginUrlMatch[0],
-          message: 'Please complete authentication in your browser'
+          success: true,
+          message: 'Tailscale is already configured',
+          hostname: status.Self?.DNSName || status.Self?.HostName
         });
       }
-
-      // Se não há URL, verificar status atual
-      try {
-        const { stdout: statusOutput } = await execAsync('tailscale status --json');
-        const status = JSON.parse(statusOutput);
-
-        if (status.BackendState === 'Running') {
-          return NextResponse.json({
-            success: true,
-            message: 'Tailscale is already configured',
-            hostname: status.Self?.DNSName || status.Self?.HostName
-          });
-        }
-      } catch {
-        // Ignore status check errors
-      }
-
-      return NextResponse.json({
-        success: false,
-        message: 'Unable to determine login URL'
-      });
-
-    } catch (error) {
-      console.error('Tailscale up error:', error);
-
-      // Verificar se o erro contém URL de login
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const loginUrlMatch = errorMessage.match(/https:\/\/login\.tailscale\.com\/[^\s]+/);
-
-      if (loginUrlMatch) {
-        return NextResponse.json({
-          requiresLogin: true,
-          loginUrl: loginUrlMatch[0],
-          message: 'Please complete authentication in your browser'
-        });
-      }
-
-      // Tentar obter URL através do `tailscale login`
-      try {
-        const { stdout: loginOutput, stderr: loginStderr } = await execAsync('tailscale login');
-        const loginOutput2 = loginOutput + loginStderr;
-        const loginUrlMatch2 = loginOutput2.match(/https:\/\/login\.tailscale\.com\/[^\s]+/);
-
-        if (loginUrlMatch2) {
-          return NextResponse.json({
-            requiresLogin: true,
-            loginUrl: loginUrlMatch2[0],
-            message: 'Please complete authentication in your browser'
-          });
-        }
-      } catch (loginError) {
-        console.error('Tailscale login error:', loginError);
-
-        const loginErrorMessage = loginError instanceof Error ? loginError.message : String(loginError);
-        const loginUrlMatch3 = loginErrorMessage.match(/https:\/\/login\.tailscale\.com\/[^\s]+/);
-
-        if (loginUrlMatch3) {
-          return NextResponse.json({
-            requiresLogin: true,
-            loginUrl: loginUrlMatch3[0],
-            message: 'Please complete authentication in your browser'
-          });
-        }
-      }
-
-      return NextResponse.json(
-        { error: 'Failed to get login URL' },
-        { status: 500 }
-      );
+    } catch {
+      // Não está autenticado, continuar
     }
+
+    // Tentar obter URL de login com timeout
+    try {
+      const { stdout, stderr } = await execWithTimeout('tailscale up --accept-routes --accept-dns 2>&1', 3000);
+
+      const output = stdout + stderr;
+      const loginUrlMatch = output.match(/https:\/\/login\.tailscale\.com\/a\/[a-zA-Z0-9]+/);
+
+      if (loginUrlMatch) {
+        return NextResponse.json({
+          requiresLogin: true,
+          loginUrl: loginUrlMatch[0],
+          message: 'Please complete authentication in your browser'
+        });
+      }
+    } catch (error: unknown) {
+      // Capturar URL do erro (comando pode ter dado timeout mas gerado URL)
+      const execError = error as { stdout?: string; stderr?: string; message?: string };
+      const output = (execError.stdout || '') + (execError.stderr || '') + (execError.message || '');
+      const loginUrlMatch = output.match(/https:\/\/login\.tailscale\.com\/a\/[a-zA-Z0-9]+/);
+
+      if (loginUrlMatch) {
+        return NextResponse.json({
+          requiresLogin: true,
+          loginUrl: loginUrlMatch[0],
+          message: 'Please complete authentication in your browser'
+        });
+      }
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to get login URL. Please check Tailscale logs.' },
+      { status: 500 }
+    );
   } catch (error) {
     console.error('Check login error:', error);
     return NextResponse.json(
-      { error: 'Invalid request' },
-      { status: 400 }
+      { error: 'Internal server error' },
+      { status: 500 }
     );
   }
 }
