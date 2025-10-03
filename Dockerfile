@@ -84,13 +84,20 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # Start Tailscale daemon and Next.js app
 CMD set -e && \
     echo "Starting Tailscale daemon..." && \
-    tailscaled --statedir=/var/lib/tailscale --tun=userspace-networking --socket=/var/run/tailscale/tailscaled.sock & \
+    tailscaled --statedir=${TS_STATE_DIR:-/var/lib/tailscale} --tun=userspace-networking --socket=/var/run/tailscale/tailscaled.sock & \
     TAILSCALED_PID=$! && \
     echo "Waiting for Tailscale daemon to start..." && \
     sleep 5 && \
     if [ ! -z "$TAILSCALE_AUTHKEY" ]; then \
         echo "Authenticating Tailscale with auth key..." && \
-        tailscale up --authkey=$TAILSCALE_AUTHKEY --accept-routes --hostname=funnel-manager || echo "Tailscale auth failed, continuing anyway..."; \
+        TS_CMD="tailscale up --authkey=$TAILSCALE_AUTHKEY" && \
+        TS_CMD="$TS_CMD --hostname=${TS_HOSTNAME:-funnel-manager}" && \
+        [ "${TS_ACCEPT_ROUTES:-true}" = "true" ] && TS_CMD="$TS_CMD --accept-routes" || true && \
+        [ "${TS_ACCEPT_DNS:-true}" = "true" ] && TS_CMD="$TS_CMD --accept-dns" || true && \
+        [ ! -z "$TS_ROUTES" ] && TS_CMD="$TS_CMD --advertise-routes=$TS_ROUTES" || true && \
+        [ ! -z "$TS_EXTRA_ARGS" ] && TS_CMD="$TS_CMD $TS_EXTRA_ARGS" || true && \
+        echo "Running: $TS_CMD" && \
+        eval "$TS_CMD" || echo "Tailscale auth failed, continuing anyway..."; \
     else \
         echo "No TAILSCALE_AUTHKEY provided, skipping auto-authentication"; \
     fi && \
