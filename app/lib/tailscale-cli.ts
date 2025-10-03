@@ -75,7 +75,7 @@ export class TailscaleCLI {
   }
 
   static async startFunnel(config: FunnelConfig): Promise<CommandResult> {
-    const { port, path = '/', protocol = 'https', serveMode = 'proxy', target } = config;
+    const { port, path = '/', serveMode = 'proxy', target } = config;
 
     if (!this.isValidPort(port)) {
       return {
@@ -84,7 +84,7 @@ export class TailscaleCLI {
       };
     }
 
-    // Passo 1: Configurar o serve (proxy reverso)
+    // Configurar serve com funnel habilitado (sintaxe v1.88+)
     if (serveMode === 'proxy' && target) {
       // Garantir que o target use localhost ou 127.0.0.1
       let normalizedTarget = target;
@@ -97,22 +97,26 @@ export class TailscaleCLI {
         normalizedTarget = `http://127.0.0.1:${targetPort}`;
       }
 
-      // Nova sintaxe do Tailscale serve (v1.86+)
-      // tailscale serve --bg --set-path /path http://localhost:3000
-      const serveCommand = `tailscale serve --bg --set-path ${path} ${normalizedTarget}`;
-      const serveResult = await this.executeCommand(serveCommand);
+      // Nova sintaxe do Tailscale serve + funnel (v1.88+)
+      // tailscale serve --funnel --bg --https 443 /path http://localhost:3000
+      // OU para porta 443 sem especificar: tailscale serve --funnel --bg /path http://localhost:3000
+      let serveCommand = 'tailscale serve --funnel --bg';
 
-      if (!serveResult.success) {
-        return {
-          success: false,
-          error: `Failed to configure serve: ${serveResult.error}`,
-        };
+      // Porta 443 é default, só especificamos se for diferente
+      if (port !== 443) {
+        serveCommand += ` --https ${port}`;
       }
+
+      serveCommand += ` ${path} ${normalizedTarget}`;
+
+      console.log('Executing funnel command:', serveCommand);
+      return this.executeCommand(serveCommand);
     }
 
-    // Passo 2: Habilitar funnel
-    const funnelCommand = `tailscale funnel ${port} on`;
-    return this.executeCommand(funnelCommand);
+    return {
+      success: false,
+      error: 'Invalid configuration. serveMode must be "proxy" and target must be specified.',
+    };
   }
 
   static async stopFunnel(port: number): Promise<CommandResult> {
