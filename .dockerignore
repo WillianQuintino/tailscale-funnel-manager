@@ -15,3 +15,5 @@ Dockerfile
 .env.production.local
 .DS_Store
 *.tsbuildinfo
+tailscale/
+data/
