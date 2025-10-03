@@ -326,7 +326,7 @@ export function Dashboard() {
 
     // Determinar porta do funnel (443, 8443 ou 10000)
     // Por padrão, usar 443 se disponível, senão 8443, senão 10000
-    let selectedFunnelPort = funnelPort || 443;
+    const selectedFunnelPort = funnelPort || 443;
 
     // Criar configuração de funnel baseada no container
     const config: FunnelConfig = {
