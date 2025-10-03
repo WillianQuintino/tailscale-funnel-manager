@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { ServiceList } from './ServiceList';
 import { ConfigurationPanel } from './ConfigurationPanel';
+import { ContainerList } from './ContainerList';
 import { TailscaleStatus, FunnelStatus, FunnelService, FunnelConfig } from '@/app/types/tailscale';
 
 async function fetchTailscaleStatus(): Promise<TailscaleStatus> {
@@ -42,6 +43,26 @@ async function fetchFunnelStatus(): Promise<FunnelStatus> {
 async function fetchServices(): Promise<FunnelService[]> {
   const response = await fetch('/api/funnel/services');
   if (!response.ok) throw new Error('Failed to fetch services');
+  return response.json();
+}
+
+interface DockerContainer {
+  id: string;
+  name: string;
+  image: string;
+  status: string;
+  state: string;
+  ports: Array<{
+    internal: number;
+    external?: number;
+    type: string;
+  }>;
+  created: string;
+}
+
+async function fetchContainers(): Promise<DockerContainer[]> {
+  const response = await fetch('/api/containers');
+  if (!response.ok) throw new Error('Failed to fetch containers');
   return response.json();
 }
 
@@ -102,6 +123,12 @@ export function Dashboard() {
     refetchInterval: 5000,
   });
 
+  const { data: containers = [], isLoading: isLoadingContainers } = useQuery({
+    queryKey: ['containers'],
+    queryFn: fetchContainers,
+    refetchInterval: 10000,
+  });
+
   // Conectar WebSocket para atualizações em tempo real
   useEffect(() => {
     const connectWebSocket = () => {
@@ -119,6 +146,7 @@ export function Dashboard() {
         switch (data.type) {
           case 'service_update':
             queryClient.invalidateQueries({ queryKey: ['services'] });
+            queryClient.invalidateQueries({ queryKey: ['containers'] });
             break;
           case 'funnel_status_update':
             queryClient.invalidateQueries({ queryKey: ['funnel-status'] });
@@ -274,7 +302,23 @@ export function Dashboard() {
     }
   };
 
-  const isLoading = isLoadingTailscale || isLoadingFunnel || isLoadingServices;
+  const handleCreateFunnelFromContainer = (containerId: string, port: number) => {
+    const container = containers.find(c => c.id === containerId);
+    if (!container) return;
+
+    // Criar configuração de funnel baseada no container
+    const config: FunnelConfig = {
+      port: 443, // Funnel sempre usa 443, 8443 ou 10000
+      path: `/${container.name.replace(/[^a-zA-Z0-9]/g, '-')}`,
+      protocol: 'https' as const,
+      serveMode: 'proxy' as const,
+      target: `http://localhost:${port}`
+    };
+
+    startFunnelMutation.mutate(config);
+  };
+
+  const isLoading = isLoadingTailscale || isLoadingFunnel || isLoadingServices || isLoadingContainers;
 
   // Componente de Setup
   const SetupScreen = () => (
@@ -480,6 +524,7 @@ export function Dashboard() {
                   queryClient.invalidateQueries({ queryKey: ['tailscale-status'] });
                   queryClient.invalidateQueries({ queryKey: ['funnel-status'] });
                   queryClient.invalidateQueries({ queryKey: ['services'] });
+                  queryClient.invalidateQueries({ queryKey: ['containers'] });
                 }}
                 disabled={isLoading}
                 className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl transition-all disabled:opacity-50"
@@ -573,6 +618,26 @@ export function Dashboard() {
                   <p className="text-white font-medium">{funnelStatus?.isEnabled ? 'Sim' : 'Não'}</p>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Containers */}
+        {activeTab === 'containers' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-white">Docker Containers</h2>
+              <div className="text-sm text-gray-400">
+                Total: {containers.length} running
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+              <ContainerList
+                containers={containers}
+                onCreateFunnel={handleCreateFunnelFromContainer}
+                isLoading={isLoadingContainers}
+              />
             </div>
           </div>
         )}

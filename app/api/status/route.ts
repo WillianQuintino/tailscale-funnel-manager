@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Buscar status do Tailscale
-    const tailscaleResponse = await fetch('http://localhost:3000/api/tailscale/status');
+    const port = process.env.PORT || 3002;
+    const tailscaleResponse = await fetch(`http://localhost:${port}/api/tailscale/status`);
     const tailscaleStatus = tailscaleResponse.ok ? await tailscaleResponse.json() : { isRunning: false };
 
     // Buscar containers Docker
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
     const casaosDetected = await dockerService.detectCasaOS();
 
     // Buscar funnels ativos (simulado por enquanto)
-    const funnelsResponse = await fetch('http://localhost:3000/api/funnel/status');
+    const funnelsResponse = await fetch(`http://localhost:${port}/api/funnel/status`);
     const funnelStatus = funnelsResponse.ok ? await funnelsResponse.json() : { isEnabled: false, activeServices: 0 };
 
     return NextResponse.json({
