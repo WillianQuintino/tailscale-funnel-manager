@@ -42,10 +42,14 @@ export class TailscaleCLI {
     try {
       const status = JSON.parse(result.output || '{}');
       const self = status.Self || {};
+      const backendState = status.BackendState || '';
+
+      // Verificar se está realmente logado (não apenas rodando)
+      const isLoggedIn = backendState === 'Running' && !!self.Online;
 
       return {
-        isRunning: true,
-        isLoggedIn: !!self.Online,
+        isRunning: backendState !== 'NoState',
+        isLoggedIn: isLoggedIn,
         hostname: self.HostName,
         ipAddress: self.TailscaleIPs?.[0],
         magicDNS: self.DNSName,
@@ -54,7 +58,7 @@ export class TailscaleCLI {
       };
     } catch {
       return {
-        isRunning: true,
+        isRunning: false,
         isLoggedIn: false,
       };
     }

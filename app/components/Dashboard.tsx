@@ -26,6 +26,7 @@ import {
 import { ServiceList } from './ServiceList';
 import { ConfigurationPanel } from './ConfigurationPanel';
 import { ContainerList } from './ContainerList';
+import { LoginScreen } from './LoginScreen';
 import { TailscaleStatus, FunnelStatus, FunnelService, FunnelConfig } from '@/app/types/tailscale';
 
 async function fetchTailscaleStatus(): Promise<TailscaleStatus> {
@@ -103,6 +104,8 @@ export function Dashboard() {
   const [loginUrl, setLoginUrl] = useState('');
   const [showLoginUrl, setShowLoginUrl] = useState(false);
   const [isCheckingLogin, setIsCheckingLogin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [authRequired, setAuthRequired] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
 
   const { data: tailscaleStatus, isLoading: isLoadingTailscale } = useQuery({
@@ -176,10 +179,24 @@ export function Dashboard() {
     };
   }, [queryClient]);
 
-  // Carregar dados iniciais
+  // Verificar autenticação e carregar dados iniciais
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        // Verificar status de autenticação
+        const authResponse = await fetch('/api/auth/status');
+        if (authResponse.ok) {
+          const authData = await authResponse.json();
+          setAuthRequired(authData.authEnabled);
+          setIsAuthenticated(authData.authenticated);
+
+          // Se autenticação é necessária e usuário não está autenticado, parar aqui
+          if (authData.authEnabled && !authData.authenticated) {
+            return;
+          }
+        }
+
+        // Carregar dados da aplicação
         const response = await fetch('/api/status');
         if (response.ok) {
           const data = await response.json();
@@ -487,7 +504,29 @@ export function Dashboard() {
     </div>
   );
 
-  if (setupMode && (!tailscaleStatus?.isRunning)) {
+  // Mostrar tela de login se autenticação estiver habilitada e usuário não autenticado
+  if (isAuthenticated === null) {
+    // Carregando status de autenticação
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (authRequired && !isAuthenticated) {
+    return <LoginScreen onLoginSuccess={() => {
+      setIsAuthenticated(true);
+      // Recarregar dados após login
+      queryClient.invalidateQueries({ queryKey: ['tailscale-status'] });
+      queryClient.invalidateQueries({ queryKey: ['funnel-status'] });
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+      queryClient.invalidateQueries({ queryKey: ['containers'] });
+    }} />;
+  }
+
+  // Mostrar tela de setup se não estiver logado OU se setupMode ativo
+  if (setupMode || !tailscaleStatus?.isLoggedIn) {
     return <SetupScreen />;
   }
 
