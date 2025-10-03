@@ -103,9 +103,20 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Criar o funnel
+      // Criar o funnel com nova sintaxe v1.88+
       const target = targetContainer ? `${targetContainer}:${targetPort}` : `localhost:${targetPort}`;
-      await execAsync(`tailscale funnel ${port} ${protocol}://${target}`);
+      const path = name ? `/${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : '/';
+
+      // Nova sintaxe: tailscale serve --funnel --bg /path http://localhost:3000
+      let serveCommand = `tailscale serve --funnel --bg`;
+
+      // Porta 443 é default, só especificamos se for diferente
+      if (parseInt(port) !== 443) {
+        serveCommand += ` --https ${port}`;
+      }
+
+      serveCommand += ` ${path} ${protocol}://${target}`;
+      await execAsync(serveCommand);
 
       // Aguardar um pouco para o funnel se estabelecer
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -176,9 +187,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Remover o funnel
+    // Remover o funnel (resetar serve config)
     try {
-      await execAsync(`tailscale funnel ${port} off`);
+      await execAsync(`tailscale serve --https ${port} off`);
 
       return NextResponse.json({
         success: true,
