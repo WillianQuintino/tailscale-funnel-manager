@@ -589,7 +589,8 @@ export function Dashboard() {
         <div className="flex space-x-4 mb-6">
           {[
             { id: 'dashboard', label: 'Dashboard', icon: Activity },
-            { id: 'services', label: 'Services', icon: Globe },
+            { id: 'network', label: 'Network', icon: Server },
+            { id: 'services', label: 'Funnels', icon: Globe },
             { id: 'containers', label: 'Containers', icon: Container },
             { id: 'config', label: 'Config', icon: Settings }
           ].map(tab => (
