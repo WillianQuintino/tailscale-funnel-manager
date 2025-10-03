@@ -120,7 +120,14 @@ export class TailscaleCLI {
   }
 
   static async stopFunnel(port: number): Promise<CommandResult> {
-    return this.executeCommand(`tailscale funnel off ${port}`);
+    // Nova sintaxe v1.88+: desabilitar serve na porta
+    // Se for porta 443, usar: tailscale serve reset
+    // Se for outra porta: tailscale serve --https PORT off
+    if (port === 443) {
+      return this.executeCommand('tailscale serve reset');
+    } else {
+      return this.executeCommand(`tailscale serve --https ${port} off`);
+    }
   }
 
   static async servePath(port: number, path: string, target: string): Promise<CommandResult> {
