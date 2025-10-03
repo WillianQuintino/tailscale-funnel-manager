@@ -320,13 +320,17 @@ export function Dashboard() {
     }
   };
 
-  const handleCreateFunnelFromContainer = (containerId: string, port: number) => {
+  const handleCreateFunnelFromContainer = (containerId: string, port: number, funnelPort?: number) => {
     const container = containers.find(c => c.id === containerId);
     if (!container) return;
 
+    // Determinar porta do funnel (443, 8443 ou 10000)
+    // Por padrão, usar 443 se disponível, senão 8443, senão 10000
+    let selectedFunnelPort = funnelPort || 443;
+
     // Criar configuração de funnel baseada no container
     const config: FunnelConfig = {
-      port: 443, // Funnel sempre usa 443, 8443 ou 10000
+      port: selectedFunnelPort,
       path: `/${container.name.replace(/[^a-zA-Z0-9]/g, '-')}`,
       protocol: 'https' as const,
       serveMode: 'proxy' as const,

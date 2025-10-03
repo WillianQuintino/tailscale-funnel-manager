@@ -19,7 +19,7 @@ interface DockerContainer {
 
 interface ContainerListProps {
   containers: DockerContainer[];
-  onCreateFunnel: (containerId: string, port: number) => void;
+  onCreateFunnel: (containerId: string, port: number, funnelPort?: number) => void;
   isLoading?: boolean;
 }
 
@@ -30,6 +30,7 @@ export function ContainerList({
 }: ContainerListProps) {
   const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
   const [selectedPort, setSelectedPort] = useState<number | null>(null);
+  const [selectedFunnelPort, setSelectedFunnelPort] = useState<number>(443);
 
   if (isLoading) {
     return (
@@ -101,14 +102,28 @@ export function ContainerList({
               </div>
 
               {isSelected && selectedPort && (
-                <button
-                  onClick={() => onCreateFunnel(container.id, selectedPort)}
-                  className="ml-4 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center space-x-2"
-                >
-                  <Globe className="h-4 w-4" />
-                  <span>Create Funnel</span>
-                  <ExternalLink className="h-3 w-3" />
-                </button>
+                <div className="ml-4 flex items-center space-x-3">
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-xs text-gray-400">Funnel Port:</label>
+                    <select
+                      value={selectedFunnelPort}
+                      onChange={(e) => setSelectedFunnelPort(Number(e.target.value))}
+                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-blue-400"
+                    >
+                      <option value="443">443 (HTTPS)</option>
+                      <option value="8443">8443 (Alt HTTPS)</option>
+                      <option value="10000">10000 (Custom)</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={() => onCreateFunnel(container.id, selectedPort, selectedFunnelPort)}
+                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center space-x-2 mt-6"
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span>Create Funnel</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </button>
+                </div>
               )}
             </div>
 
