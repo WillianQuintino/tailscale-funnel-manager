@@ -97,7 +97,11 @@ export class TailscaleCLI {
         normalizedTarget = `http://127.0.0.1:${targetPort}`;
       }
 
-      // Passo 1: Configurar serve em background
+      // Passo 1: Resetar configuração existente do funnel
+      console.log('Step 1 - Resetting existing funnel config on port:', port);
+      await this.executeCommand(`tailscale funnel --https=${port} off`);
+
+      // Passo 2: Configurar serve em background
       // tailscale serve --bg --https 443 --set-path /path http://localhost:3000
       let serveCommand = 'tailscale serve --bg';
 
@@ -111,7 +115,7 @@ export class TailscaleCLI {
       // Adicionar path e target
       serveCommand += ` --set-path ${path} ${normalizedTarget}`;
 
-      console.log('Step 1 - Configuring serve:', serveCommand);
+      console.log('Step 2 - Configuring serve:', serveCommand);
       const serveResult = await this.executeCommand(serveCommand);
 
       if (!serveResult.success) {
@@ -121,9 +125,9 @@ export class TailscaleCLI {
         };
       }
 
-      // Passo 2: Habilitar funnel na porta
+      // Passo 3: Habilitar funnel na porta
       const funnelCommand = `tailscale funnel ${port}`;
-      console.log('Step 2 - Enabling funnel:', funnelCommand);
+      console.log('Step 3 - Enabling funnel:', funnelCommand);
 
       return this.executeCommand(funnelCommand);
     }
