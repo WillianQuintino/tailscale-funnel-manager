@@ -320,21 +320,17 @@ export function Dashboard() {
     }
   };
 
-  const handleCreateFunnelFromContainer = (containerId: string, port: number, funnelPort?: number) => {
+  const handleCreateFunnelFromContainer = (containerId: string, internalPort: number, externalPort: number) => {
     const container = containers.find(c => c.id === containerId);
     if (!container) return;
 
-    // Determinar porta do funnel (443, 8443 ou 10000)
-    // Por padrão, usar 443 se disponível, senão 8443, senão 10000
-    const selectedFunnelPort = funnelPort || 443;
-
-    // Criar configuração de funnel baseada no container
+    // Usar a porta externa do Docker como porta do funnel
     const config: FunnelConfig = {
-      port: selectedFunnelPort,
+      port: externalPort, // Porta externa do Docker (ex: 3001, 8888)
       path: `/${container.name.replace(/[^a-zA-Z0-9]/g, '-')}`,
       protocol: 'https' as const,
       serveMode: 'proxy' as const,
-      target: `http://localhost:${port}`
+      target: `http://localhost:${externalPort}` // Target também usa a porta externa
     };
 
     startFunnelMutation.mutate(config);

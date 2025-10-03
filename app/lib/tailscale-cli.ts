@@ -75,16 +75,9 @@ export class TailscaleCLI {
   }
 
   static async startFunnel(config: FunnelConfig): Promise<CommandResult> {
-    const { port, path = '/', serveMode = 'proxy', target } = config;
+    const { port, serveMode = 'proxy', target } = config;
 
-    if (!this.isValidPort(port)) {
-      return {
-        success: false,
-        error: `Invalid port ${port}. Funnel only supports ports 443, 8443, and 10000.`,
-      };
-    }
-
-    // Configurar serve primeiro, depois habilitar funnel
+    // Usar a porta externa do Docker diretamente no funnel
     if (serveMode === 'proxy' && target) {
       // Garantir que o target use localhost ou 127.0.0.1
       let normalizedTarget = target;
@@ -97,37 +90,12 @@ export class TailscaleCLI {
         normalizedTarget = `http://127.0.0.1:${targetPort}`;
       }
 
-      // Passo 1: Resetar configuração existente do funnel
-      console.log('Step 1 - Resetting existing funnel config on port:', port);
-      await this.executeCommand(`tailscale funnel --https=${port} off`);
+      // Comando simplificado: tailscale funnel --bg {porta_externa} expõe diretamente a porta
+      // Exemplo: tailscale funnel --bg 3001
+      const funnelCommand = `tailscale funnel --bg ${port}`;
 
-      // Passo 2: Configurar serve em background
-      // tailscale serve --bg --https 443 --set-path /path http://localhost:3000
-      let serveCommand = 'tailscale serve --bg';
-
-      // Especificar porta HTTPS
-      if (port === 443) {
-        serveCommand += ' --https 443';
-      } else if (port === 8443 || port === 10000) {
-        serveCommand += ` --https ${port}`;
-      }
-
-      // Adicionar path e target
-      serveCommand += ` --set-path ${path} ${normalizedTarget}`;
-
-      console.log('Step 2 - Configuring serve:', serveCommand);
-      const serveResult = await this.executeCommand(serveCommand);
-
-      if (!serveResult.success) {
-        return {
-          success: false,
-          error: `Failed to configure serve: ${serveResult.error}`,
-        };
-      }
-
-      // Passo 3: Habilitar funnel na porta
-      const funnelCommand = `tailscale funnel ${port}`;
-      console.log('Step 3 - Enabling funnel:', funnelCommand);
+      console.log('Creating funnel on port:', port, 'targeting:', normalizedTarget);
+      console.log('Executing command:', funnelCommand);
 
       return this.executeCommand(funnelCommand);
     }

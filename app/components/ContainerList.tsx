@@ -19,7 +19,7 @@ interface DockerContainer {
 
 interface ContainerListProps {
   containers: DockerContainer[];
-  onCreateFunnel: (containerId: string, port: number, funnelPort?: number) => void;
+  onCreateFunnel: (containerId: string, internalPort: number, externalPort: number) => void;
   isLoading?: boolean;
 }
 
@@ -29,8 +29,7 @@ export function ContainerList({
   isLoading = false,
 }: ContainerListProps) {
   const [selectedContainer, setSelectedContainer] = useState<string | null>(null);
-  const [selectedPort, setSelectedPort] = useState<number | null>(null);
-  const [selectedFunnelPort, setSelectedFunnelPort] = useState<number>(443);
+  const [selectedPort, setSelectedPort] = useState<{internal: number; external?: number} | null>(null);
 
   if (isLoading) {
     return (
@@ -83,10 +82,10 @@ export function ContainerList({
                           key={idx}
                           onClick={() => {
                             setSelectedContainer(container.id);
-                            setSelectedPort(port.internal);
+                            setSelectedPort(port);
                           }}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            isSelected && selectedPort === port.internal
+                            isSelected && selectedPort?.internal === port.internal
                               ? 'bg-blue-500/30 text-blue-200 border border-blue-400/50'
                               : 'bg-white/5 text-gray-300 border border-white/10 hover:border-white/20'
                           }`}
@@ -101,28 +100,27 @@ export function ContainerList({
                 )}
               </div>
 
-              {isSelected && selectedPort && (
+              {isSelected && selectedPort && selectedPort.external && (
                 <div className="ml-4 flex items-center space-x-3">
                   <div className="flex flex-col space-y-1">
-                    <label className="text-xs text-gray-400">Funnel Port:</label>
-                    <select
-                      value={selectedFunnelPort}
-                      onChange={(e) => setSelectedFunnelPort(Number(e.target.value))}
-                      className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-blue-400"
-                    >
-                      <option value="443">443 (HTTPS)</option>
-                      <option value="8443">8443 (Alt HTTPS)</option>
-                      <option value="10000">10000 (Custom)</option>
-                    </select>
+                    <span className="text-xs text-gray-400">
+                      Funnel Port: <span className="text-blue-300 font-mono">{selectedPort.external}</span>
+                    </span>
                   </div>
                   <button
-                    onClick={() => onCreateFunnel(container.id, selectedPort, selectedFunnelPort)}
-                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center space-x-2 mt-6"
+                    onClick={() => onCreateFunnel(container.id, selectedPort.internal, selectedPort.external!)}
+                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center space-x-2"
                   >
                     <Globe className="h-4 w-4" />
                     <span>Create Funnel</span>
                     <ExternalLink className="h-3 w-3" />
                   </button>
+                </div>
+              )}
+
+              {isSelected && selectedPort && !selectedPort.external && (
+                <div className="ml-4 text-sm text-yellow-400">
+                  ⚠️ No external port mapped
                 </div>
               )}
             </div>
